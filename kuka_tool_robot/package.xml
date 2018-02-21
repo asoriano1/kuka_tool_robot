@@ -1,0 +1,17 @@
+<package>
+  <name>kuka_tool_robot</name>
+  <version>1.0.0</version>
+  <description>URDF description of the kuka tool Robot.</description>
+
+  <license>BSD</license>
+
+  <author email="info@robotnik.es">Robotnik</author>
+
+  <maintainer email="info@robotnik.es">Robotnik</maintainer>
+  
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <export>
+    <metapackage/>
+  </export>
+</package>
