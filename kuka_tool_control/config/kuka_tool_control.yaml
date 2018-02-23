@@ -1,9 +1,9 @@
 joint_up_position_controller:
   type: position_controllers/JointPositionController
-  joint: gripper_motorup_joint
+  joint: gripper_motor_up_joint
 joint_down_position_controller:
   type: position_controllers/JointPositionController
-  joint: gripper_motordown_joint
+  joint: gripper_motor_down_joint
 
 joint_trajectory_controller:
   type: "position_controllers/JointTrajectoryController"
