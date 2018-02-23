@@ -90,8 +90,8 @@ public:
 		bEnable = false;	// Communication flag disabled by default
 		last_command_ = true;
 		
-		current_linear_step = 0.001;
-		current_angular_step = 0.05;
+		current_linear_step = 0.0005;
+		current_angular_step = 0.005;
 	}
 	
 void padCallback(const sensor_msgs::Joy::ConstPtr& joy)
@@ -112,8 +112,8 @@ void padCallback(const sensor_msgs::Joy::ConstPtr& joy)
 
 			if(!bRegisteredButtonEvent[speed_down_button_]) 
 				if(current_linear_step > 0.1){
-		  			current_linear_step = current_linear_step + 0.1;
-					current_angular_step = current_angular_step + 0.1;
+		  			current_linear_step = current_linear_step - 0.001;
+					current_angular_step = current_angular_step - 0.001;
 					bRegisteredButtonEvent[speed_down_button_] = true;
 					ROS_INFO("Step: %f%%", current_linear_step*100.0);
 					char buf[50]="\0";
@@ -128,8 +128,8 @@ void padCallback(const sensor_msgs::Joy::ConstPtr& joy)
 		if (joy->buttons[speed_up_button_] == 1){
 			if(!bRegisteredButtonEvent[speed_up_button_])
 				if(current_linear_step <= 0.9){
-					current_linear_step = current_linear_step + 0.1;
-					current_angular_step = current_angular_step + 0.1;
+					current_linear_step = current_linear_step + 0.001;
+					current_angular_step = current_angular_step + 0.001;
 					bRegisteredButtonEvent[speed_up_button_] = true;
 			 	 	ROS_INFO("Step: %f%%", current_linear_step*100.0);
   					char buf[50]="\0";
