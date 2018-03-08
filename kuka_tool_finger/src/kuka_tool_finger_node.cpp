@@ -153,12 +153,11 @@ void padCallback(const sensor_msgs::Joy::ConstPtr& joy)
 		set_pos_M2.data=delta_M2+position_M2;		
 		set_pos_M1.data=delta_M1+position_M1;
 
-		
-		//if(incr_x >=-0.05 && incr_x<=0.05){
-			//ROS_INFO("read: M1:%f M2:%f delta_M1:%f delta_M2:%f-->Sending: M1: %f M2: %f ::",position_M1, position_M2, delta_M1, delta_M2, set_pos_M1.data,set_pos_M2.data);
-			pub1.publish(set_pos_M1);
+		//if (joy->buttons[dead_man_button_] == 1) {
 			pub2.publish(set_pos_M2);
+			pub1.publish(set_pos_M1);
 		//}
+		
 	}
 }
 void callback_joints(const sensor_msgs::JointState::ConstPtr& states)
