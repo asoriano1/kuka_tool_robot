@@ -38,6 +38,7 @@ private:
 	ros::NodeHandle pnh_;	
 	ros::Subscriber sub;
 	ros::Subscriber sub_joint_states;
+	ros::Subscriber sub_kuka_positions;
 	ros::Publisher pub1;
 	ros::Publisher pub2;
 	//! It will be suscribed to the joystick
@@ -54,7 +55,7 @@ private:
 	float c2=c1/0.048; 
 	//! Number of buttons of the joystick
 	int num_of_buttons_;
-	
+	float cart_position_kuka[6]; //cart position of the kuka x,y,z,a,b,c
 	
 	//! Pointer to a vector for controlling the event when pushing the buttons
 	bool bRegisteredButtonEvent[DEFAULT_NUM_OF_BUTTONS];
@@ -73,7 +74,7 @@ public:
 		pub2=pnh_.advertise<std_msgs::Float64>("/kuka_tool/joint_down_position_controller/command",1);		
 		sub_joint_states=pnh_.subscribe("/kuka_tool/joint_states",1,&SubscribeAndPublish::callback_joints,this);
 		pad_sub_ = pnh_.subscribe<sensor_msgs::Joy>("/joy", 10, &SubscribeAndPublish::padCallback, this);
-		
+		sub_kuka_positions=pnh_.subscribe<sensor_msgs::JointState>("/cartesian_pos_kuka",1,&SubscribeAndPublish::kukaPosCallback,this);
 		
 		// MOTION CONF
 		pnh_.param("num_of_buttons", num_of_buttons_, DEFAULT_NUM_OF_BUTTONS);
@@ -103,7 +104,14 @@ public:
 		current_linear_step = 0.0005;
 		current_angular_step = 0.005;
 	}
+void kukaPosCallback(const sensor_msgs::JointState::ConstPtr& pos)
+{
+	for(int i=0; i<6;i++){
+		cart_position_kuka[i]=pos->position[i];
+	}
 	
+	
+}
 void padCallback(const sensor_msgs::Joy::ConstPtr& joy)
 
 {
