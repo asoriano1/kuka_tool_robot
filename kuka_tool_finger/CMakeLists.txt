@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   geometry_msgs
   message_generation
+  robotnik_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -107,7 +108,8 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES kuka_tool_finger
-#  CATKIN_DEPENDS other_catkin_pkg
+  CATKIN_DEPENDS 
+  robotnik_msgs
 #  DEPENDS system_lib
 )
 
