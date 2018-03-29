@@ -73,8 +73,8 @@ public:
 		pub1=pnh_.advertise<std_msgs::Float64>("/kuka_tool/joint_up_position_controller/command",1);
 		pub2=pnh_.advertise<std_msgs::Float64>("/kuka_tool/joint_down_position_controller/command",1);		
 		sub_joint_states=pnh_.subscribe("/kuka_tool/joint_states",1,&SubscribeAndPublish::callback_joints,this);
-		pad_sub_ = pnh_.subscribe<sensor_msgs::Joy>("/joy", 10, &SubscribeAndPublish::padCallback, this);
-		sub_kuka_positions=pnh_.subscribe<sensor_msgs::JointState>("/cartesian_pos_kuka",1,&SubscribeAndPublish::kukaPosCallback,this);
+		pad_sub_ = pnh_.subscribe<sensor_msgs::Joy>("/kuka_pad/joy", 10, &SubscribeAndPublish::padCallback, this);
+		sub_kuka_positions=pnh_.subscribe<sensor_msgs::JointState>("/kuka_robot/cartesian_pos_kuka",1,&SubscribeAndPublish::kukaPosCallback,this);
 		
 		// MOTION CONF
 		pnh_.param("num_of_buttons", num_of_buttons_, DEFAULT_NUM_OF_BUTTONS);
