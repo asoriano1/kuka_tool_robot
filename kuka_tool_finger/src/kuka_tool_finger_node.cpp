@@ -5,6 +5,7 @@
 #include <sensor_msgs/Joy.h>
 #include <robotnik_msgs/set_float_value.h>
 #include <robotnik_msgs/set_odometry.h>
+#include <robotnik_msgs/Kuka_pose.h>
 
 #define DEFAULT_NUM_OF_BUTTONS		16
 #define DEFAULT_AXIS_LINEAR_X		1
@@ -73,8 +74,8 @@ public:
 		pub1=pnh_.advertise<std_msgs::Float64>("/kuka_tool/joint_up_position_controller/command",1);
 		pub2=pnh_.advertise<std_msgs::Float64>("/kuka_tool/joint_down_position_controller/command",1);		
 		sub_joint_states=pnh_.subscribe("/kuka_tool/joint_states",1,&SubscribeAndPublish::callback_joints,this);
-		pad_sub_ = pnh_.subscribe<sensor_msgs::Joy>("/joy", 10, &SubscribeAndPublish::padCallback, this);
-		sub_kuka_positions=pnh_.subscribe<sensor_msgs::JointState>("/cartesian_pos_kuka",1,&SubscribeAndPublish::kukaPosCallback,this);
+		pad_sub_ = pnh_.subscribe<sensor_msgs::Joy>("/kuka_pad/joy", 10, &SubscribeAndPublish::padCallback, this);
+		sub_kuka_positions=pnh_.subscribe<robotnik_msgs::Kuka_pose>("/kuka_robot/cartesian_pos_kuka",1,&SubscribeAndPublish::kukaPosCallback,this);
 		
 		// MOTION CONF
 		pnh_.param("num_of_buttons", num_of_buttons_, DEFAULT_NUM_OF_BUTTONS);
@@ -104,11 +105,16 @@ public:
 		current_linear_step = 0.0005;
 		current_angular_step = 0.005;
 	}
-void kukaPosCallback(const sensor_msgs::JointState::ConstPtr& pos)
+void kukaPosCallback(const robotnik_msgs::Kuka_pose::ConstPtr& pos)
 {
-	for(int i=0; i<6;i++){
-		cart_position_kuka[i]=pos->position[i];
-	}
+	
+		cart_position_kuka[0]=pos->x;
+		cart_position_kuka[1]=pos->y;
+		cart_position_kuka[2]=pos->z;
+		cart_position_kuka[3]=pos->A;
+		cart_position_kuka[4]=pos->B;
+		cart_position_kuka[5]=pos->C;
+	
 	
 	
 }
@@ -195,7 +201,7 @@ void callback_joints(const sensor_msgs::JointState::ConstPtr& states)
 bool srv_setTranslation(robotnik_msgs::set_float_value::Request &request,robotnik_msgs::set_float_value::Response &response ){
 		std_msgs::Float64 set_pos_M1;
 		std_msgs::Float64 set_pos_M2;
-		if(request.value>=0 && request.value<=0.1){
+		if(request.value>=0 && request.value<=0.15){
 		float incr_x=request.value-position_x_from_home; //para hacerlo relativo al homing, convertirlo en un incremento de distancia
 		float delta_M2=0.5*((incr_x/c1));
 		float delta_M1=delta_M2;
@@ -214,7 +220,7 @@ bool srv_setTranslation(robotnik_msgs::set_float_value::Request &request,robotni
  bool srv_setOdometry(robotnik_msgs::set_odometry::Request &request,robotnik_msgs::set_odometry::Response &response ){
 		std_msgs::Float64 set_pos_M1;
 		std_msgs::Float64 set_pos_M2;
-		if(request.x>=0 && request.x<=0.1 && request.orientation<=0){
+		if(request.x>=0 && request.x<=0.15 && request.orientation<=0){
 		float incr_x=request.x-position_x_from_home; //para hacerlo relativo al homing, convertirlo en un incremento de distancia
 		float incr_beta=-request.orientation+position_beta_from_home;
 		float delta_M2=0.5*((incr_x/c1)-incr_beta/c2);
