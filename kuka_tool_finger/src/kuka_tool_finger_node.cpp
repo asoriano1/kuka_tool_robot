@@ -5,7 +5,7 @@
 #include <sensor_msgs/Joy.h>
 #include <robotnik_msgs/set_float_value.h>
 #include <robotnik_msgs/set_odometry.h>
-#include <robotnik_msgs/Kuka_pose.h>
+#include <robotnik_msgs/Cartesian_Euler_pose.h>
 
 #define DEFAULT_NUM_OF_BUTTONS		16
 #define DEFAULT_AXIS_LINEAR_X		1
@@ -75,7 +75,7 @@ public:
 		pub2=pnh_.advertise<std_msgs::Float64>("/kuka_tool/joint_down_position_controller/command",1);		
 		sub_joint_states=pnh_.subscribe("/kuka_tool/joint_states",1,&SubscribeAndPublish::callback_joints,this);
 		pad_sub_ = pnh_.subscribe<sensor_msgs::Joy>("/kuka_pad/joy", 10, &SubscribeAndPublish::padCallback, this);
-		sub_kuka_positions=pnh_.subscribe<robotnik_msgs::Kuka_pose>("/kuka_robot/cartesian_pos_kuka",1,&SubscribeAndPublish::kukaPosCallback,this);
+		sub_kuka_positions=pnh_.subscribe<robotnik_msgs::Cartesian_Euler_pose>("/kuka_robot/cartesian_pos_kuka",1,&SubscribeAndPublish::kukaPosCallback,this);
 		
 		// MOTION CONF
 		pnh_.param("num_of_buttons", num_of_buttons_, DEFAULT_NUM_OF_BUTTONS);
@@ -105,7 +105,7 @@ public:
 		current_linear_step = 0.0005;
 		current_angular_step = 0.005;
 	}
-void kukaPosCallback(const robotnik_msgs::Kuka_pose::ConstPtr& pos)
+void kukaPosCallback(const robotnik_msgs::Cartesian_Euler_pose::ConstPtr& pos)
 {
 	
 		cart_position_kuka[0]=pos->x;
