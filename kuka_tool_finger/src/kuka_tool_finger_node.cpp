@@ -6,6 +6,7 @@
 #include <robotnik_msgs/set_float_value.h>
 #include <robotnik_msgs/set_odometry.h>
 #include <robotnik_msgs/Cartesian_Euler_pose.h>
+#include <std_msgs/Bool.h>
 
 #define DEFAULT_NUM_OF_BUTTONS		16
 #define DEFAULT_AXIS_LINEAR_X		1
@@ -39,7 +40,8 @@ private:
 	ros::NodeHandle pnh_;	
 	ros::Subscriber sub;
 	ros::Subscriber sub_joint_states;
-	ros::Subscriber sub_kuka_positions;
+	//ros::Subscriber sub_kuka_positions;
+	ros::Subscriber sub_kuka_moving;
 	ros::Publisher pub1;
 	ros::Publisher pub2;
 	//! It will be suscribed to the joystick
@@ -56,7 +58,8 @@ private:
 	float c2=c1/0.048; 
 	//! Number of buttons of the joystick
 	int num_of_buttons_;
-	float cart_position_kuka[6]; //cart position of the kuka x,y,z,a,b,c
+	//float cart_position_kuka[6]; //cart position of the kuka x,y,z,a,b,c
+	bool kukaMoving;
 	
 	//! Pointer to a vector for controlling the event when pushing the buttons
 	bool bRegisteredButtonEvent[DEFAULT_NUM_OF_BUTTONS];
@@ -75,7 +78,8 @@ public:
 		pub2=pnh_.advertise<std_msgs::Float64>("/kuka_tool/joint_down_position_controller/command",1);		
 		sub_joint_states=pnh_.subscribe("/kuka_tool/joint_states",1,&SubscribeAndPublish::callback_joints,this);
 		pad_sub_ = pnh_.subscribe<sensor_msgs::Joy>("/kuka_pad/joy", 10, &SubscribeAndPublish::padCallback, this);
-		sub_kuka_positions=pnh_.subscribe<robotnik_msgs::Cartesian_Euler_pose>("/kuka_robot/cartesian_pos_kuka",1,&SubscribeAndPublish::kukaPosCallback,this);
+		//sub_kuka_positions=pnh_.subscribe<robotnik_msgs::Cartesian_Euler_pose>("/kuka_robot/cartesian_pos_kuka",1,&SubscribeAndPublish::kukaPosCallback,this);
+		sub_kuka_moving=pnh_.subscribe<std_msgs::Bool>("/kuka_robot/kuka_moving",10,&SubscribeAndPublish::kukaMovingCallback,this);
 		
 		// MOTION CONF
 		pnh_.param("num_of_buttons", num_of_buttons_, DEFAULT_NUM_OF_BUTTONS);
@@ -105,6 +109,7 @@ public:
 		current_linear_step = 0.0005;
 		current_angular_step = 0.005;
 	}
+	/*
 void kukaPosCallback(const robotnik_msgs::Cartesian_Euler_pose::ConstPtr& pos)
 {
 	
@@ -117,6 +122,10 @@ void kukaPosCallback(const robotnik_msgs::Cartesian_Euler_pose::ConstPtr& pos)
 	
 	
 	
+}
+*/
+void kukaMovingCallback(const std_msgs::Bool::ConstPtr& mov){
+	kukaMoving=mov->data;
 }
 void padCallback(const sensor_msgs::Joy::ConstPtr& joy)
 
@@ -179,8 +188,11 @@ void padCallback(const sensor_msgs::Joy::ConstPtr& joy)
 		set_pos_M1.data=delta_M1+position_M1;
 
 		//if (joy->buttons[dead_man_button_] == 1) {
+		
+		if(!kukaMoving){ //only move the finger if robot isnt moving automatically
 			pub2.publish(set_pos_M2);
 			pub1.publish(set_pos_M1);
+		}
 		//}
 		
 		
@@ -201,7 +213,7 @@ void callback_joints(const sensor_msgs::JointState::ConstPtr& states)
 bool srv_setTranslation(robotnik_msgs::set_float_value::Request &request,robotnik_msgs::set_float_value::Response &response ){
 		std_msgs::Float64 set_pos_M1;
 		std_msgs::Float64 set_pos_M2;
-		if(request.value>=0 && request.value<=0.15){
+		if(request.value>=0 && request.value<=0.19){
 		float incr_x=request.value-position_x_from_home; //para hacerlo relativo al homing, convertirlo en un incremento de distancia
 		float delta_M2=0.5*((incr_x/c1));
 		float delta_M1=delta_M2;
@@ -220,7 +232,7 @@ bool srv_setTranslation(robotnik_msgs::set_float_value::Request &request,robotni
  bool srv_setOdometry(robotnik_msgs::set_odometry::Request &request,robotnik_msgs::set_odometry::Response &response ){
 		std_msgs::Float64 set_pos_M1;
 		std_msgs::Float64 set_pos_M2;
-		if(request.x>=0 && request.x<=0.15 && request.orientation<=0){
+		if(request.x>=0 && request.x<=0.19 && request.orientation<=0){
 		float incr_x=request.x-position_x_from_home; //para hacerlo relativo al homing, convertirlo en un incremento de distancia
 		float incr_beta=-request.orientation+position_beta_from_home;
 		float delta_M2=0.5*((incr_x/c1)-incr_beta/c2);
