@@ -165,7 +165,7 @@ void padCallback(const sensor_msgs::Joy::ConstPtr& joy)
 		}else{
 			bRegisteredButtonEvent[speed_up_button_] = false;
 		}
-		float incr_x = current_linear_step * l_scale_*joy->axes[linear_y_];
+		float incr_x = current_linear_step * -l_scale_*joy->axes[linear_y_];
 		float incr_beta = current_angular_step * -l_scale_*joy->axes[angular_]; //cambio de signo para que hacia derechas sea apretar
     //	ROS_INFO("incr x: %f",incr_x);
 		//inverse kin		
