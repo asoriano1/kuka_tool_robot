@@ -1,22 +1,41 @@
 <?xml version="1.0"?>
-<launch>  	
-	
-	<arg name="id_robot" default="$(optenv ROBOT_ID kuka_tool)"/>
-	
-	<group ns="$(arg id_robot)">
-	
-		<arg name="prefix" value="$(arg id_robot)_"/>		
+<launch>  		 
+	 
+	<arg name="finger_id" default="$(optenv FINGER_ID 3)"/>
+  
+	<!-- Load robot description to parameter server -->
+	<param name="robot_description" command="$(find xacro)/xacro --inorder '$(find kuka_robot_bringup)/robot/kr120toolv$(arg finger_id).xacro'"/>
 
-		<!-- start robot_state_publisher - publish fixed transforms, load robot model to param server -->
-		<include file="$(find kuka_tool_description)/launch/gripper_description_motor.launch"/>			
-		
+	<!-- tool -->
+	<arg name="tool_ns" default="$(optenv TOOL_ID kuka_tool)"/>
+	
+	<group ns="$(arg tool_ns)">
+	
 		<!-- start robotnik_base_hw -->
 		<include file="$(find robotnik_base_hw)/launch/robotnik_base_hw.launch"/>
-		
-		<!-- start rb1_base_control -->
-		<include file="$(find kuka_tool_control)/launch/kuka_tool_control.launch"/>		
+	
+		<!-- start kuka_control -->
+		<include file="$(find kuka_tool_control)/launch/kuka_tool_control.launch"/>
 	
 	</group>
-	  	
-
+	
+	<!-- merge the robot_ns/joint_states and tool_ns/joint_states into /joint_states -->
+	<node name="robot_joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" >
+		<rosparam param="source_list">["kuka_robot/joint_states","kuka_tool/joint_states"]</rosparam> 
+	</node>
+	
+	<!-- robot_state_publisher -->
+	<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+	
+	<!-- TODO: este nodo puede que deba estar dentro del grupo de la tool -->
+	<node name="kuka_tool_finger_node" pkg="kuka_tool_finger" type="kuka_tool_finger_node" output="screen">
+		<rosparam command="load" file="$(find kuka_tool_finger)/config/kuka_tool_finger_node.yaml" />
+	</node>
+	
+	
+	<!-- launch tf of cameras -->
+	<node pkg="tf" type="static_transform_publisher" name="camera1_tf_broadcaster" args="2.47602948349 0.00984163122968 1.12647795233 -0.56772076924 -0.667909703038 0.363593056674 0.315261551572 /base_link /camera1_color_optical_frame 1000" />
+	<node pkg="tf" type="static_transform_publisher" name="camera2_tf_broadcaster" args="0.0556772673959 2.32271655908 1.30081204934 -0.123409216712 -0.944218810666 0.304680875775 0.0197627617415 /base_link /camera2_color_optical_frame 1000" />
+		
+	
 </launch>
