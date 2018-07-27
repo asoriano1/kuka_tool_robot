@@ -34,8 +34,8 @@
 	
 	
 	<!-- launch tf of cameras -->
-	<node pkg="tf" type="static_transform_publisher" name="camera1_tf_broadcaster" args="2.47602948349 0.00984163122968 1.12647795233 -0.56772076924 -0.667909703038 0.363593056674 0.315261551572 /base_link /camera1_color_optical_frame 1000" />
-	<node pkg="tf" type="static_transform_publisher" name="camera2_tf_broadcaster" args="0.0556772673959 2.32271655908 1.30081204934 -0.123409216712 -0.944218810666 0.304680875775 0.0197627617415 /base_link /camera2_color_optical_frame 1000" />
+	<node pkg="tf" type="static_transform_publisher" name="camera1_tf_broadcaster" args="2.38483081907 0.0874564851148 1.63336872662 -0.602294145977 -0.752529155135 0.200076434884 0.175815393517 /base_link /camera1_color_optical_frame 1000" />
+	<node pkg="tf" type="static_transform_publisher" name="camera2_tf_broadcaster" args="0.0586469641498 2.50897768642 1.55808801734 -0.0940746136031 -0.963091065974 0.248647589013 0.0421893611542 /base_link /camera2_color_optical_frame 1000" />
 		
 	
 </launch>

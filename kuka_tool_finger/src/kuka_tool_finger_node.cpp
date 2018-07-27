@@ -32,7 +32,7 @@ private:
 	bool bEnable;
 	//! Flag to track the first reading without the deadman's button pressed.
 	bool last_command_;
-	int linear_x_, linear_y_, linear_z_, angular_;
+	int linear_x_, linear_y_, linear_z_, angular_, up_down_;
 	double l_scale_, a_scale_, l_scale_z_; 
 	
 	double 	current_linear_step, current_angular_step;
@@ -83,12 +83,13 @@ public:
 		pnh_.param("axis_linear_x", linear_x_, DEFAULT_AXIS_LINEAR_X);
 		pnh_.param("axis_linear_y", linear_y_, DEFAULT_AXIS_LINEAR_Y);
 		pnh_.param("axis_linear_z", linear_z_, DEFAULT_AXIS_LINEAR_Z);
+		pnh_.param("axis_up_down", up_down_, 1);
 		pnh_.param("axis_angular", angular_, DEFAULT_AXIS_ANGULAR);
 		pnh_.param("scale_angular", a_scale_, DEFAULT_SCALE_ANGULAR);
 		pnh_.param("scale_linear", l_scale_, DEFAULT_SCALE_LINEAR);
 		pnh_.param("scale_linear_z", l_scale_z_, DEFAULT_SCALE_LINEAR_Z);
 		pnh_.param("button_dead_man", dead_man_button_, dead_man_button_);
-		pnh_.param("button_speed_up", speed_up_button_, speed_up_button_);  //4 Thrustmaster
+		pnh_.param("button_speed_up", speed_up_button_, speed_up_button_);  //4 Thrustmaster triangulo
 		pnh_.param("button_speed_down", speed_down_button_, speed_down_button_); //5 Thrustmaster
 		pnh_.param("button_dead_man_tool_mode", button_dead_man_tool_mode_, button_dead_man_tool_mode_); //euler or cartesian
 	
@@ -119,19 +120,19 @@ void padCallback(const sensor_msgs::Joy::ConstPtr& joy)
     std_msgs::Float64 set_pos_M2;
     bEnable = false;
     
-    if(joy->buttons[dead_man_button_] == 0 && joy->buttons[button_dead_man_tool_mode_] == 1){
+    if(joy->buttons[dead_man_button_] == 0 && joy->buttons[button_dead_man_tool_mode_] == 1){//triangle is now deadman for tool
 		bEnable = true;
 	}
     // Actions dependant on dead-man button
  	if (bEnable) {
 		//ROS_ERROR("SummitXLPad::padCallback: DEADMAN button %d", dead_man_button_);
 		//Set the current velocity level
-		if ( joy->buttons[speed_down_button_] == 1 ){
+		if ( joy->axes[up_down_] == -1 ){
 
-			if(!bRegisteredButtonEvent[speed_down_button_]) 
+			if(!bRegisteredDirectionalArrows[0]) 
 				if(current_linear_step >0.0001){
-		  			current_linear_step = current_linear_step - 0.00005;
-					current_angular_step = current_angular_step - 0.00005;
+		  			current_linear_step = current_linear_step - 0.000005;
+					current_angular_step = current_angular_step - 0.000005;
 					bRegisteredButtonEvent[speed_down_button_] = true;
 					ROS_INFO("Step: %f%%", current_linear_step/0.0009*100.0);
 					char buf[50]="\0";
@@ -140,14 +141,14 @@ void padCallback(const sensor_msgs::Joy::ConstPtr& joy)
                     // sc.say(buf);
 				}
 		}else{
-			bRegisteredButtonEvent[speed_down_button_] = false;
+			bRegisteredDirectionalArrows[0] = false;
 		 }
 		//ROS_ERROR("SummitXLPad::padCallback: Passed SPEED DOWN button %d", speed_down_button_);
-		if (joy->buttons[speed_up_button_] == 1){
-			if(!bRegisteredButtonEvent[speed_up_button_])
+		if (joy->axes[up_down_] == 1){
+			if(!bRegisteredDirectionalArrows[1])
 				if(current_linear_step <= 0.0009){
-					current_linear_step = current_linear_step + 0.00005;
-					current_angular_step = current_angular_step + 0.00005;
+					current_linear_step = current_linear_step + 0.000005;
+					current_angular_step = current_angular_step + 0.000005;
 					bRegisteredButtonEvent[speed_up_button_] = true;
 			 	 	ROS_INFO("Step: %f%%", current_linear_step/0.0009*100.0);
   					char buf[50]="\0";
@@ -157,7 +158,7 @@ void padCallback(const sensor_msgs::Joy::ConstPtr& joy)
 				}
 		  
 		}else{
-			bRegisteredButtonEvent[speed_up_button_] = false;
+			bRegisteredDirectionalArrows[1] = false;
 		}
 		float incr_x = current_linear_step * -l_scale_*joy->axes[linear_y_];
 		float incr_beta = current_angular_step * -l_scale_*joy->axes[angular_]; //cambio de signo para que hacia derechas sea apretar

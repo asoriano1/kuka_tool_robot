@@ -4,10 +4,10 @@ axis_linear_x: 1
 axis_linear_y: 0
 axis_angular: 2
 axis_linear_z: 5
+axis_up_down: 10
 scale_linear: 1.5
 scale_angular: 3
 scale_linear_z: 20.0 
-button_speed_up: 3
 button_speed_down: 1
 button_dead_man: 5
 button_euler_mode: 4
@@ -25,7 +25,7 @@ button_home: 8
 tilt_increment: 0.087 # radians
 pan_increment: 0.087  # radians
 zoom_increment: 300
-button_dead_man_tool_mode: 7
+button_dead_man_tool_mode: 3
 joystick_dead_zone: "true"  #useful for x-wam
 
 
